@@ -1,0 +1,176 @@
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+    
+</head>
+<body>
+    <script>
+
+        var tickerLookup = [
+          {BTC: "Bitcoin" }, { BCH: "Bitcoin Cash" }, { ETH: "Ethereum" }, { XRP: "Ripple" }, { BTG: "Bitcoin Gold" }, { LTC: "Litecoin" }, { DASH: "Dash" }
+        ];
+
+        var today = new Date(); 
+        today.setDate(today.getDate() - 0);
+        var yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+        var weekBefore = new Date(); 
+        weekBefore.setDate(today.getDate() - 7);
+        var twoWeeksBefore = new Date();
+        twoWeeksBefore.setDate(today.getDate() - 14);
+        var monthBefore = new Date();
+        monthBefore.setMonth(today.getMonth() - 1);
+        var threeMonthsBefore = new Date();
+        threeMonthsBefore.setMonth(today.getMonth() - 3);
+        var sixMonthsBefore = new Date();
+        sixMonthsBefore.setMonth(today.getMonth() - 6);
+        var yearBefore = new Date();
+        yearBefore.setFullYear(today.getFullYear() - 1);
+
+        var deltas = [];
+        deltas.push({ title: "Today", ts: Math.round(today.getTime() / 1000) });
+        deltas.push({ title: "Since yesterday", ts: Math.round(yesterday.getTime() / 1000) });
+        deltas.push({ title: "Last week", ts: Math.round(weekBefore.getTime() / 1000) });
+        deltas.push({ title: "Last month", ts: Math.round(monthBefore.getTime() / 1000) });
+        deltas.push({ title: "Last 3 months", ts: Math.round(threeMonthsBefore.getTime() / 1000) });
+        deltas.push({ title: "Last 6 months ", ts: Math.round(sixMonthsBefore.getTime() / 1000) });
+        deltas.push({ title: "Last year", ts: Math.round(yearBefore.getTime() / 1000) });
+
+
+        console.log(JSON.stringify(deltas));
+
+        var allCurrenciesAPIUrl = "https://min-api.cryptocompare.com/data/pricehistorical?fsym=USD&tsyms=BTC,BCH,ETH,XRP,BTG,LTC,DASH&ts=" 
+
+        var counter = 0;
+
+        function nextCall() {
+
+            var url = allCurrenciesAPIUrl + deltas[counter].ts;
+
+            $(function () {
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    dataType: 'json',
+                }).done(function (data) {
+
+                    deltas[counter].result = data.USD;
+                    for (var n in deltas[counter].result) {
+                        var val = deltas[counter].result[n];
+                        if (val == 0) val = null;
+                        else val = 1 / val;
+                        deltas[counter].result[n] = val;
+                    }
+                    console.log("next delta=" + JSON.stringify(deltas[counter]));
+                    counter++;
+                    if (counter < deltas.length) {
+                        nextCall();
+                    }
+                    else {
+                        postProcess();
+                    }
+                });
+            });
+
+        }
+
+        function postProcess() {
+            console.log("---->" + JSON.stringify(deltas));
+            var today = deltas[0].result;
+            for (var i = 1; i < deltas.length; i++) {
+                var nth = deltas[i].result;
+                var changes = {};
+                for (n in nth) {
+
+                    if (nth[n] == 0) nth[n] = null;
+                    if (today[n] == null || nth[n] == null || today[n] == 0 || nth[n] == 0) {
+                        changes[n] = "--";
+                    } else {
+                        console.log("n=" + n + " today[n]=" + today[n] + " nth[n])=" + nth[n]);
+                        changes[n] = Math.round( ((today[n]) - (nth[n])) / (nth[n]) * 1000) /1000;
+                    }
+                    
+                }
+                deltas[i]["changes"] = changes;
+
+            }
+            
+
+            var headerHtml = "<tr><th  class='text-sm-center' rowspan=2>Currency (Ticker)</th>";
+            for (var i = 0; i < deltas.length; i++) {
+                var colspan = i == 0 ? 1 : 2;
+                headerHtml += ("<th  class='text-sm-center' colspan=" + colspan + ">" + deltas[i].title + "</th>");
+            }
+            headerHtml += "</tr><tr>";
+            for (var i = 0; i < deltas.length; i++) {
+                
+                headerHtml += ("<th><small>Price&nbsp;($)</small></th>");
+                if (deltas[i].changes != null) headerHtml += ("<th><small>Change&nbsp;(%)</small></th>");
+            }
+            headerHtml += "</tr>";
+            $("#tbl thead").html(headerHtml);
+
+            var bodyHtml = "";
+
+            for (var j = 0; j < tickerLookup.length; j++) {
+                var key = Object.keys(tickerLookup[j])[0];
+                bodyHtml += "<tr><td>" + tickerLookup[j][key] + " (" + key + ")</td>";
+                for (var i = 0; i < deltas.length; i++) {
+                    var price = "--";
+                    if (deltas[i].result[key] != null)
+                    {
+                        price = Math.round(100 * deltas[i].result[key]) / 100;
+                    }
+                        
+                    bodyHtml += "<td>" + price + "</td>";
+
+                    if (deltas[i].changes != null) {
+                        var change = "--";
+                        if (deltas[i].changes[key] != "--") 
+                        {
+                            change = Math.round(deltas[i].changes[key] * 10000) / 100;
+                        }
+                        bodyHtml += "<td>" + change + "</td>";
+                    }
+                }
+                bodyHtml += "</tr>";
+            }
+
+            $("#tbl tbody").html(bodyHtml);
+            $('#footer').css('visibility', 'visible');
+            $('#loading').css('visibility', 'hidden');
+            
+        }
+
+        nextCall();
+
+    </script>
+
+    <div class="container-fluid">
+        
+        <h1>Cryptocurrency growth rates</h1>
+        <p class="lead">This is all what 99.9% of cryptocurrency investors care about</p>
+        <hr />
+
+        <div id="loading" class="loading text-center text-lg-center">
+            Loading ...
+        </div>
+
+        <table class="table table-bordered table-striped" id="tbl">
+            <thead>
+
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+        <div id="footer" class="text-muted text-center" style="visibility:hidden">
+            <br /><br />
+            &copy; "Barsuk &amp; Lisenok"&reg;
+            <br /><br />
+        </div>
+    </div>
+</body>
+</html>
