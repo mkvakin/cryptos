@@ -53,11 +53,11 @@
         var deltas = [];
         deltas.push({ title: "Today", ts: Math.round(today.getTime() / 1000) });
         deltas.push({ title: "Since yesterday", ts: Math.round(yesterday.getTime() / 1000) });
-        deltas.push({ title: "Last week", ts: Math.round(weekBefore.getTime() / 1000) });
-        deltas.push({ title: "Last month", ts: Math.round(monthBefore.getTime() / 1000) });
-        deltas.push({ title: "Last 3 months", ts: Math.round(threeMonthsBefore.getTime() / 1000) });
-        deltas.push({ title: "Last 6 months ", ts: Math.round(sixMonthsBefore.getTime() / 1000) });
-        deltas.push({ title: "Last year", ts: Math.round(yearBefore.getTime() / 1000) });
+        deltas.push({ title: "Since last week", ts: Math.round(weekBefore.getTime() / 1000) });
+        deltas.push({ title: "Since last month", ts: Math.round(monthBefore.getTime() / 1000) });
+        deltas.push({ title: "Since last 3 months", ts: Math.round(threeMonthsBefore.getTime() / 1000) });
+        deltas.push({ title: "Since last 6 months ", ts: Math.round(sixMonthsBefore.getTime() / 1000) });
+        deltas.push({ title: "Since last year", ts: Math.round(yearBefore.getTime() / 1000) });
 
 
         console.log(JSON.stringify(deltas));
