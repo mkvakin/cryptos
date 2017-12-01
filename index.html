@@ -184,14 +184,17 @@
 
                     if (deltas[i].changes != null) {
 
-                        mobileHtml += "<div class='col'>";
-
+                        
+                        var style = "";
                         var change = na;
                         if (deltas[i].changes[key] != na) 
                         {
+                            
                             change = Math.round(deltas[i].changes[key] * 10000) / 100;
+                            style = change > 0 ? "text-success" : "text-danger";
                         }
-                        bodyHtml += "<td>" + change + "</td>";
+                        bodyHtml += "<td class='" + style + "'>" + change + "</td>";
+                        mobileHtml += "<div class='col " + style + "'>";
                         mobileHtml += change;
                         if (change != na) mobileHtml += "%";
 
