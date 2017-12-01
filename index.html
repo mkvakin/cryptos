@@ -10,10 +10,12 @@
         gtag('config', 'UA-110339258-1');
     </script>
 
+    
+
     <title>Cryptocurrency growth rates</title>
     <meta name="keywords" content="bitcoin litecoin ethereum dash ripple cryptocurrency cryprocurrencies" />
     <meta name="description" content="All what 99.9% of cryptocurrency investors care about" />
-     
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <meta property="og:title" content="Cryptocurrency growth rates"/>
     <meta property="og:type" content="website"/>
@@ -24,10 +26,20 @@
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script>
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
-    
+    <style>
+        h5 {
+            margin-top: 20px;
+        }
+
+        .table-responsive {
+            display: table;
+        }
+    </style>
 </head>
 <body>
     <script>
+
+        var na = "--";
 
         var tickerLookup = [
           {BTC: "Bitcoin" }, { BCH: "Bitcoin Cash" }, { ETH: "Ethereum" }, { XRP: "Ripple" }, { BTG: "Bitcoin Gold" }, { LTC: "Litecoin" }, { DASH: "Dash" }
@@ -107,7 +119,7 @@
 
                     if (nth[n] == 0) nth[n] = null;
                     if (today[n] == null || nth[n] == null || today[n] == 0 || nth[n] == 0) {
-                        changes[n] = "--";
+                        changes[n] = na;
                     } else {
                         console.log("n=" + n + " today[n]=" + today[n] + " nth[n])=" + nth[n]);
                         changes[n] = Math.round( ((today[n]) - (nth[n])) / (nth[n]) * 1000) /1000;
@@ -134,12 +146,29 @@
             $("#tbl thead").html(headerHtml);
 
             var bodyHtml = "";
+            var mobileHtml = "";
 
             for (var j = 0; j < tickerLookup.length; j++) {
                 var key = Object.keys(tickerLookup[j])[0];
-                bodyHtml += "<tr><td>" + tickerLookup[j][key] + " (" + key + ")</td>";
+                var theTicker = tickerLookup[j][key] + " (" + key + ")";
+                bodyHtml += "<tr><td>" + theTicker + "</td>";
+
+                mobileHtml += "<div class='row'><div class='col'><h5>";
+                mobileHtml += theTicker;
+                mobileHtml += "</h5></div></div>";
+                mobileHtml += "<div class='row'><div class='col'>";
+
                 for (var i = 0; i < deltas.length; i++) {
-                    var price = "--";
+
+                    mobileHtml += "<div class='row'>";
+                    mobileHtml += "<div class='col-5 text-nowrap'>";
+
+                    mobileHtml += deltas[i].title;
+
+                    mobileHtml += "</div>";
+                    mobileHtml += "<div class='col'>";
+
+                    var price = na;
                     if (deltas[i].result[key] != null)
                     {
                         price = Math.round(100 * deltas[i].result[key]) / 100;
@@ -147,20 +176,36 @@
                         
                     bodyHtml += "<td>" + price + "</td>";
 
+                    if (price != na) mobileHtml += "$"
+                    mobileHtml += price;
+                    
+
+                    mobileHtml += "</div>";
+
                     if (deltas[i].changes != null) {
-                        var change = "--";
-                        if (deltas[i].changes[key] != "--") 
+
+                        mobileHtml += "<div class='col'>";
+
+                        var change = na;
+                        if (deltas[i].changes[key] != na) 
                         {
                             change = Math.round(deltas[i].changes[key] * 10000) / 100;
                         }
                         bodyHtml += "<td>" + change + "</td>";
+                        mobileHtml += change;
+                        if (change != na) mobileHtml += "%";
+
+                        mobileHtml += "</div>";
+                        
                     }
+                    mobileHtml += "</div>";
                 }
                 bodyHtml += "</tr>";
+                mobileHtml += "</div></div>";
             }
-
+            $("#mob").html(mobileHtml);
             $("#tbl tbody").html(bodyHtml);
-            $('#footer').css('visibility', 'visible');
+            $('#active-content').css('visibility', 'visible');
             $('#loading').css('visibility', 'hidden');
             
         }
@@ -171,7 +216,8 @@
 
     <div class="container-fluid">
         
-        <h1>Cryptocurrency growth rates</h1>
+        <h2 class="d-block d-sm-none">Cryptocurrency Growth Rates</h2>
+        <h1 class="d-none d-sm-block">Cryptocurrency Growth Rates</h1>
         <p class="lead">All what 99.9% of cryptocurrency investors care about</p>
         <hr />
 
@@ -183,18 +229,20 @@
             Loading ...
         </div>
 
-        <table class="table table-bordered table-striped" id="tbl">
-            <thead>
+        <div id="active-content">
+            <div class="d-block d-sm-block d-md-block d-lg-none" id="mob"></div>
 
-            </thead>
-            <tbody>
-
-            </tbody>
-        </table>
-        <div id="footer" class="text-muted text-center" style="visibility:hidden">
-            <br /><br />
-            &copy; "Barsuk &amp; Lisenok"&reg;
-            <br /><br />
+            <div class="d-none d-sm-none d-md-none d-lg-block table-responsive">
+                <table class="table table-bordered table-striped" id="tbl">
+                    <thead></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div id="footer" class="text-muted text-center" style="visibility:hidden">
+                <br /><br />
+                &copy; "Barsuk &amp; Lisenok"&reg;
+                <br /><br />
+            </div>
         </div>
     </div>
 </body>
