@@ -37,18 +37,15 @@
     </style>
 </head>
 <body>
+    <script src="common.js"></script>
     <script>
-
-        var na = "--";
-
-        var tickerLookup = [
-          {BTC: "Bitcoin" }, { BCH: "Bitcoin Cash" }, { ETH: "Ethereum" }, { XRP: "Ripple" }, { BTG: "Bitcoin Gold" }, { LTC: "Litecoin" }, { DASH: "Dash" }
-        ];
 
         var today = new Date(); 
         today.setDate(today.getDate() - 0);
         var yesterday = new Date();
         yesterday.setDate(today.getDate() - 1);
+        var twoDaysAgo = new Date();
+        twoDaysAgo.setDate(today.getDate() - 2);
         var weekBefore = new Date(); 
         weekBefore.setDate(today.getDate() - 7);
         var twoWeeksBefore = new Date();
@@ -65,6 +62,7 @@
         var deltas = [];
         deltas.push({ title: "Today", ts: Math.round(today.getTime() / 1000) });
         deltas.push({ title: "Since yesterday", ts: Math.round(yesterday.getTime() / 1000) });
+        deltas.push({ title: "Since 2 days ago", ts: Math.round(twoDaysAgo.getTime() / 1000) });
         deltas.push({ title: "Since last week", ts: Math.round(weekBefore.getTime() / 1000) });
         deltas.push({ title: "Since last month", ts: Math.round(monthBefore.getTime() / 1000) });
         deltas.push({ title: "Since last 3 months", ts: Math.round(threeMonthsBefore.getTime() / 1000) });
