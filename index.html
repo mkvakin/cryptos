@@ -149,6 +149,7 @@
             for (var j = 0; j < tickerLookup.length; j++) {
                 var key = Object.keys(tickerLookup[j])[0];
                 var theTicker = tickerLookup[j][key] + " (" + key + ")";
+                theTicker = "<a href='weekly.html?ticker=" + key + "'>" + theTicker + "</a>";
                 bodyHtml += "<tr><td>" + theTicker + "</td>";
 
                 mobileHtml += "<div class='row'><div class='col'><h5>";

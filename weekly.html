@@ -1,0 +1,209 @@
+<html>
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-110339258-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-110339258-1');
+    </script>
+
+    
+
+    <title>Weekly growth stats per cryptocurrency</title>
+    <meta name="keywords" content="bitcoin litecoin ethereum dash ripple cryptocurrency cryprocurrencies" />
+    <meta name="description" content="All what 99.9% of cryptocurrency investors care about" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta property="og:title" content="Weekly growth stats"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="https://mkvakin.github.io/cryptos/index.html" />
+    <meta property="og:image" content="https://mkvakin.github.io/cryptos/image.jpg" />
+    <meta property="og:description" content="All what 99.9% of cryptocurrency investors care about" />
+
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+    <style>
+        h5 {
+            margin-top: 20px;
+        }
+
+        
+    </style>
+</head>
+<body>
+    <script src="common.js"></script>
+    <script>
+        let today = new Date(); 
+        today.setDate(today.getDate() - 0);
+
+        let ticker = getParameterByName('ticker');
+        ticker = ticker.toUpperCase();
+
+        if (ticker == null) {
+            let msg = "Missing ticker parameter";
+            alert(msg);
+            throw msg;
+        }
+
+        let tickerDescription = findTickerDescription(ticker);
+        if (tickerDescription == null) {
+            let msg = "Ticker " + ticker + " not supported";
+            alert(msg);
+            throw msg;
+        }
+
+        let deltas = [];
+
+        deltas.push({ title: "Today", ts: Math.round(today.getTime() / 1000) });
+
+        for (var k = 1; k < 25; k++) {
+            today.setDate(today.getDate() - 7);
+            deltas.push({ title: "" + k + " weeks ago", ts: Math.round(today.getTime() / 1000) });
+        }
+
+        //console.log(JSON.stringify(deltas));
+
+        var allCurrenciesAPIUrl = "https://min-api.cryptocompare.com/data/pricehistorical?fsym=USD&tsyms=" + ticker + "&ts=" 
+
+        var counter = 0;
+
+        function nextCall() {
+
+            var url = allCurrenciesAPIUrl + deltas[counter].ts;
+
+            $(function () {
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    dataType: 'json',
+                }).done(function (data) {
+
+                    deltas[counter].result = data.USD;
+                    for (var n in deltas[counter].result) {
+                        var val = deltas[counter].result[n];
+                        if (val == 0) val = null;
+                        else val = 1 / val;
+                        deltas[counter].result[n] = val;
+                    }
+                    //console.log("next delta=" + JSON.stringify(deltas[counter]));
+                    counter++;
+                    if (counter < deltas.length) {
+                        nextCall();
+                    }
+                    else {
+                        
+                        postProcess();
+                    }
+                });
+            });
+
+        }
+
+        function postProcess() {
+            
+            for (var i = 0; i < deltas.length - 1; i++) {
+                var nth = deltas[i].result[ticker];
+                var prev = deltas[i + 1].result[ticker];
+                var change = na;
+
+                if (nth == 0) nth[n] = null;
+                if (prev == 0) nth[n] = null;
+                if (nth != 0 && prev != 0) {
+                    change = Math.round(1000*(nth - prev)/prev)/1000;
+                }
+                    
+                deltas[i]["change"] = change;
+
+            }
+
+            console.log("---->" + JSON.stringify(deltas));
+            
+            let mobileHtml = "<div class='row'><div class='col-5 text-muted'>Time</div><div class='col text-muted'>Price ($)</div><div class='col  text-muted'>Change (%)</div></div><div class='row'><div class='col'>";
+
+            for (var i = 0; i < deltas.length-1; i++) {
+
+                mobileHtml += "<div class='row'>";
+                mobileHtml += "<div class='col-5 text-nowrap'>";
+
+                mobileHtml += deltas[i].title;
+
+                mobileHtml += "</div>";
+                mobileHtml += "<div class='col'>";
+
+                let price = na;
+
+                if (deltas[i].result[ticker] != null)
+                {
+                    price = Math.round(100 * deltas[i].result[ticker]) / 100;
+                }
+                        
+                
+
+                if (price != na) mobileHtml += "$"
+                mobileHtml += price;
+                    
+
+                mobileHtml += "</div>";
+
+                if (deltas[i].change != null) {
+
+                        
+                    let style = "";
+                    let change = na;
+                    if (deltas[i].change != na) 
+                    {
+                            
+                        change = Math.round(deltas[i].change * 10000) / 100;
+                        style = change > 0 ? "text-success" : "text-danger";
+                    }
+                    mobileHtml += "<div class='col " + style + "'>";
+                    mobileHtml += change;
+                    if (change != na) mobileHtml += "%";
+
+                    mobileHtml += "</div>";
+                        
+                }
+                mobileHtml += "</div>";
+            }
+            mobileHtml += "</div></div>";
+
+
+            $(".hdr").html("Weekly stats for " + tickerDescription + " (" + ticker + ")");
+            $("#mob").html(mobileHtml);
+            $('#active-content').css('visibility', 'visible');
+            $('#loading').css('visibility', 'hidden');
+
+            
+            
+        }
+
+        nextCall();
+
+    </script>
+
+    <div class="container-fluid">
+        
+
+        <div id="loading" class="loading text-center text-lg-center">
+            Loading ...
+        </div>
+
+        <div id="active-content" style="visibility:hidden">
+            <h2 class="d-block d-sm-none hdr"></h2>
+            <h1 class="d-none d-sm-block hdr"></h1>
+            <hr />
+            <a href="https://bit.ly/2jGqxWK" target="_blank"><img src="coinbase-logo.png" width="50" /> Enroll to Coinbase and get $10 worth of free Bitcoin</a>
+            <div id="mob"></div>
+            <div id="footer" class="text-muted text-center" style="visibility:hidden">
+                <br /><br />
+                &copy; "Barsuk &amp; Lisenok"&reg;
+                <br /><br />
+            </div>
+        </div>
+    </div>
+</body>
+</html>
