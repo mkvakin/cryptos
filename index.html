@@ -13,11 +13,11 @@
     
 
     <title>Cryptocurrency growth rates</title>
-    <meta name="keywords" content="bitcoin litecoin ethereum dash ripple cryptocurrency cryprocurrencies" />
+    <meta name="keywords" content="bitcoin litecoin ethereum dash ripple iota cryptocurrency cryprocurrencies" />
     <meta name="description" content="All what 99.9% of cryptocurrency investors care about" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <meta property="og:title" content="Cryptocurrency growth rates"/>
+    <meta property="og:title" content="Cryptocurrency biweekly growth rates"/>
     <meta property="og:type" content="website"/>
     <meta property="og:url" content="https://mkvakin.github.io/cryptos/index.html" />
     <meta property="og:image" content="https://mkvakin.github.io/cryptos/image.jpg" />
@@ -42,32 +42,16 @@
 
         var today = new Date(); 
         today.setDate(today.getDate() - 0);
-        var yesterday = new Date();
-        yesterday.setDate(today.getDate() - 1);
-        var twoDaysAgo = new Date();
-        twoDaysAgo.setDate(today.getDate() - 2);
-        var weekBefore = new Date(); 
-        weekBefore.setDate(today.getDate() - 7);
-        var twoWeeksBefore = new Date();
-        twoWeeksBefore.setDate(today.getDate() - 14);
-        var monthBefore = new Date();
-        monthBefore.setMonth(today.getMonth() - 1);
-        var threeMonthsBefore = new Date();
-        threeMonthsBefore.setMonth(today.getMonth() - 3);
-        var sixMonthsBefore = new Date();
-        sixMonthsBefore.setMonth(today.getMonth() - 6);
-        var yearBefore = new Date();
-        yearBefore.setFullYear(today.getFullYear() - 1);
+        
 
-        var deltas = [];
+        let deltas = [];
+
         deltas.push({ title: "Today", ts: Math.round(today.getTime() / 1000) });
-        deltas.push({ title: "Since yesterday", ts: Math.round(yesterday.getTime() / 1000) });
-        deltas.push({ title: "Since 2 days ago", ts: Math.round(twoDaysAgo.getTime() / 1000) });
-        deltas.push({ title: "Since last week", ts: Math.round(weekBefore.getTime() / 1000) });
-        deltas.push({ title: "Since last month", ts: Math.round(monthBefore.getTime() / 1000) });
-        deltas.push({ title: "Since last 3 months", ts: Math.round(threeMonthsBefore.getTime() / 1000) });
-        deltas.push({ title: "Since last 6 months ", ts: Math.round(sixMonthsBefore.getTime() / 1000) });
-        deltas.push({ title: "Since last year", ts: Math.round(yearBefore.getTime() / 1000) });
+
+        for (var k = 1; k < 50; k+=2) {
+            today.setDate(today.getDate() - 7);
+            deltas.push({ title: "" + k + " weeks ago", ts: Math.round(today.getTime() / 1000) });
+        }
 
 
         console.log(JSON.stringify(deltas));
@@ -107,38 +91,71 @@
 
         }
 
+        function calcStyle(num) {
+            let style = "";
+            if (num != na) {
+                style = num > 0 ? "text-success" : "text-danger";
+            }
+            return style;
+        }
+
         function postProcess() {
             console.log("---->" + JSON.stringify(deltas));
             var today = deltas[0].result;
-            for (var i = 1; i < deltas.length; i++) {
+            for (var i = 0; i < deltas.length-1; i++) {
                 var nth = deltas[i].result;
+                var prev = deltas[i+1].result;
                 var changes = {};
                 for (n in nth) {
 
                     if (nth[n] == 0) nth[n] = null;
-                    if (today[n] == null || nth[n] == null || today[n] == 0 || nth[n] == 0) {
+                    if (prev[n] == 0) prev[n] = null;
+                    if (prev[n] == null || nth[n] == null) {
                         changes[n] = na;
                     } else {
                         console.log("n=" + n + " today[n]=" + today[n] + " nth[n])=" + nth[n]);
-                        changes[n] = Math.round( ((today[n]) - (nth[n])) / (nth[n]) * 1000) /1000;
+                        changes[n] = Math.round((nth[n] - prev[n]) / prev[n] * 1000) / 1000;
                     }
                     
                 }
                 deltas[i]["changes"] = changes;
 
             }
+
+            var averages = {};
+
+            console.log("deltas = " + JSON.stringify(deltas));
+
+            for (var i = 0; i < tickerLookup.length; i++) {
+                var total = 0;
+                var count = 0;
+                var ticker = Object.keys(tickerLookup[i])[0]
+                console.log("ticker=" + ticker);
+                for (var j = 0; j < deltas.length-1; j++) {
+                    var nextDelta = deltas[j];
+                    console.log("count=" + count);
+                    var changes = nextDelta.changes[ticker];
+                    console.log("changes=" + changes);
+                    if (changes == na) break;
+                    total += changes;
+                    count++;
+                }
+                var avg = total / count;
+                averages[ticker] = avg;
+            }
+
+            console.log("avgs = " + JSON.stringify(averages));
             
 
-            var headerHtml = "<tr><th  class='text-sm-center' rowspan=2>Currency (Ticker)</th>";
-            for (var i = 0; i < deltas.length; i++) {
-                var colspan = i == 0 ? 1 : 2;
-                headerHtml += ("<th  class='text-sm-center' colspan=" + colspan + ">" + deltas[i].title + "</th>");
+            var headerHtml = "<tr><th  class='text-sm-center' rowspan=2>Currency (Ticker)</th><th class='text-sm-center' rowspan=2>Avg (%)</th>";
+            for (var i = 0; i < deltas.length-1; i++) {
+                headerHtml += ("<th  class='text-sm-center' colspan=2>" + deltas[i].title + "</th>");
             }
             headerHtml += "</tr><tr>";
-            for (var i = 0; i < deltas.length; i++) {
+            for (var i = 0; i < deltas.length-1; i++) {
                 
                 headerHtml += ("<th><small>Price&nbsp;($)</small></th>");
-                if (deltas[i].changes != null) headerHtml += ("<th><small>Change&nbsp;(%)</small></th>");
+                headerHtml += ("<th><small>Change&nbsp;(%)</small></th>");
             }
             headerHtml += "</tr>";
             $("#tbl thead").html(headerHtml);
@@ -149,15 +166,21 @@
             for (var j = 0; j < tickerLookup.length; j++) {
                 var key = Object.keys(tickerLookup[j])[0];
                 var theTicker = tickerLookup[j][key] + " (" + key + ")";
-                theTicker = "<a href='weekly.html?ticker=" + key + "'>" + theTicker + "</a>";
+                var average = Math.round(averages[key] * 10000) / 100;
                 bodyHtml += "<tr><td>" + theTicker + "</td>";
+                bodyHtml += "<td class='" + calcStyle(average) + " font-weight-bold'>" + average + "</td>";
 
                 mobileHtml += "<div class='row'><div class='col'><h5>";
                 mobileHtml += theTicker;
                 mobileHtml += "</h5></div></div>";
+                mobileHtml += "<div class='row'><div class='col-5'>Average</div><div class='col'>--</div><div class='col font-weight-bold " + calcStyle(average) + "'>";
+                mobileHtml += average;
+                mobileHtml += "%</div></div>";
                 mobileHtml += "<div class='row'><div class='col'>";
 
-                for (var i = 0; i < deltas.length; i++) {
+
+
+                for (var i = 0; i < deltas.length-1; i++) {
 
                     mobileHtml += "<div class='row'>";
                     mobileHtml += "<div class='col-5 text-nowrap'>";
@@ -181,25 +204,23 @@
 
                     mobileHtml += "</div>";
 
-                    if (deltas[i].changes != null) {
 
                         
-                        var style = "";
-                        var change = na;
-                        if (deltas[i].changes[key] != na) 
-                        {
+                    var style = "";
+                    var change = na;
+                    if (deltas[i].changes[key] != na) 
+                    {
                             
-                            change = Math.round(deltas[i].changes[key] * 10000) / 100;
-                            style = change > 0 ? "text-success" : "text-danger";
-                        }
-                        bodyHtml += "<td class='" + style + "'>" + change + "</td>";
-                        mobileHtml += "<div class='col " + style + "'>";
-                        mobileHtml += change;
-                        if (change != na) mobileHtml += "%";
-
-                        mobileHtml += "</div>";
-                        
+                        change = Math.round(deltas[i].changes[key] * 10000) / 100;
+                        style = calcStyle(change);
                     }
+                    bodyHtml += "<td class='" + style + "'>" + change + "</td>";
+                    mobileHtml += "<div class='col " + style + "'>";
+                    mobileHtml += change;
+                    if (change != na) mobileHtml += "%";
+
+                    mobileHtml += "</div>";
+                        
                     mobileHtml += "</div>";
                 }
                 bodyHtml += "</tr>";
@@ -218,9 +239,9 @@
 
     <div class="container-fluid">
         
-        <h2 class="d-block d-sm-none">Cryptocurrency Growth Rates</h2>
-        <h1 class="d-none d-sm-block">Cryptocurrency Growth Rates</h1>
-        <p class="lead">All what 99.9% of cryptocurrency investors care about</p>
+        <h3 class="d-block d-sm-none">Cryptocurrency Biweekly Growth Rates</h3>
+        <h1 class="d-none d-sm-block">Cryptocurrency Biweekly Growth Rates</h1>
+        <p class="lead">All what 99.9% of cryptocurrency investors care about. See how much each coin grew every two weeks.</p>
         <hr />
 
         
@@ -228,7 +249,7 @@
         <a href="https://bit.ly/2jGqxWK" target="_blank"><img src="coinbase-logo.png" width="50" /> Enroll to Coinbase and get $10 worth of free Bitcoin</a>
         
 
-        <div id="loading" class="loading text-center text-lg-center">
+        <div id="loading" class="loading text-center text-lg-center" style="margin-top:50px">
             Loading ...
         </div>
 
