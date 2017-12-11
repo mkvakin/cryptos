@@ -50,11 +50,11 @@
 
         for (var k = 1; k < 50; k+=2) {
             today.setDate(today.getDate() - 7);
-            deltas.push({ title: "" + k + " weeks ago", ts: Math.round(today.getTime() / 1000) });
+            deltas.push({ title: "" + k + " w. ago", ts: Math.round(today.getTime() / 1000) });
         }
 
 
-        console.log(JSON.stringify(deltas));
+        //console.log(JSON.stringify(deltas));
 
         var allCurrenciesAPIUrl = "https://min-api.cryptocompare.com/data/pricehistorical?fsym=USD&tsyms=BTC,BCH,ETH,XRP,BTG,LTC,DASH&ts=" 
 
@@ -78,7 +78,7 @@
                         else val = 1 / val;
                         deltas[counter].result[n] = val;
                     }
-                    console.log("next delta=" + JSON.stringify(deltas[counter]));
+                    //console.log("next delta=" + JSON.stringify(deltas[counter]));
                     counter++;
                     if (counter < deltas.length) {
                         nextCall();
@@ -100,7 +100,7 @@
         }
 
         function postProcess() {
-            console.log("---->" + JSON.stringify(deltas));
+            //console.log("---->" + JSON.stringify(deltas));
             var today = deltas[0].result;
             for (var i = 0; i < deltas.length-1; i++) {
                 var nth = deltas[i].result;
@@ -113,7 +113,7 @@
                     if (prev[n] == null || nth[n] == null) {
                         changes[n] = na;
                     } else {
-                        console.log("n=" + n + " today[n]=" + today[n] + " nth[n])=" + nth[n]);
+                        //console.log("n=" + n + " today[n]=" + today[n] + " nth[n])=" + nth[n]);
                         changes[n] = Math.round((nth[n] - prev[n]) / prev[n] * 1000) / 1000;
                     }
                     
@@ -124,18 +124,18 @@
 
             var averages = {};
 
-            console.log("deltas = " + JSON.stringify(deltas));
+            //console.log("deltas = " + JSON.stringify(deltas));
 
             for (var i = 0; i < tickerLookup.length; i++) {
                 var total = 0;
                 var count = 0;
                 var ticker = Object.keys(tickerLookup[i])[0]
-                console.log("ticker=" + ticker);
+                //console.log("ticker=" + ticker);
                 for (var j = 0; j < deltas.length-1; j++) {
                     var nextDelta = deltas[j];
-                    console.log("count=" + count);
+                    //console.log("count=" + count);
                     var changes = nextDelta.changes[ticker];
-                    console.log("changes=" + changes);
+                    //console.log("changes=" + changes);
                     if (changes == na) break;
                     total += changes;
                     count++;
@@ -144,18 +144,18 @@
                 averages[ticker] = avg;
             }
 
-            console.log("avgs = " + JSON.stringify(averages));
+            //console.log("avgs = " + JSON.stringify(averages));
             
 
-            var headerHtml = "<tr><th  class='text-sm-center' rowspan=2>Currency (Ticker)</th><th class='text-sm-center' rowspan=2>Avg (%)</th>";
+            var headerHtml = "<tr><th  class='text-center' rowspan=2>Currency (Ticker)</th><th class='text-sm-center' rowspan=2>Avg (%)</th>";
             for (var i = 0; i < deltas.length-1; i++) {
-                headerHtml += ("<th  class='text-sm-center' colspan=2>" + deltas[i].title + "</th>");
+                headerHtml += ("<th  class='text-center' colspan=2><small><strong>" + deltas[i].title + "</strong></small></th>");
             }
             headerHtml += "</tr><tr>";
             for (var i = 0; i < deltas.length-1; i++) {
                 
-                headerHtml += ("<th><small>Price&nbsp;($)</small></th>");
-                headerHtml += ("<th><small>Change&nbsp;(%)</small></th>");
+                headerHtml += ("<th class='text-center'><small>Price<br/>($)</small></th>");
+                headerHtml += ("<th class='text-center'><small>Change<br/>(%)</small></th>");
             }
             headerHtml += "</tr>";
             $("#tbl thead").html(headerHtml);
@@ -196,7 +196,7 @@
                         price = Math.round(100 * deltas[i].result[key]) / 100;
                     }
                         
-                    bodyHtml += "<td>" + price + "</td>";
+                    bodyHtml += "<td class='text-center'><small>" + price + "</small></td>";
 
                     if (price != na) mobileHtml += "$"
                     mobileHtml += price;
@@ -214,7 +214,7 @@
                         change = Math.round(deltas[i].changes[key] * 10000) / 100;
                         style = calcStyle(change);
                     }
-                    bodyHtml += "<td class='" + style + "'>" + change + "</td>";
+                    bodyHtml += "<td class='text-center " + style + "'>" + change + "</td>";
                     mobileHtml += "<div class='col " + style + "'>";
                     mobileHtml += change;
                     if (change != na) mobileHtml += "%";

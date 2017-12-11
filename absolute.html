@@ -71,7 +71,7 @@
         deltas.push({ title: "Since last year", ts: Math.round(yearBefore.getTime() / 1000) });
 
 
-        console.log(JSON.stringify(deltas));
+        //console.log(JSON.stringify(deltas));
 
         var allCurrenciesAPIUrl = "https://min-api.cryptocompare.com/data/pricehistorical?fsym=USD&tsyms=BTC,BCH,ETH,XRP,BTG,LTC,DASH&ts="
 
@@ -95,7 +95,7 @@
                         else val = 1 / val;
                         deltas[counter].result[n] = val;
                     }
-                    console.log("next delta=" + JSON.stringify(deltas[counter]));
+                    //console.log("next delta=" + JSON.stringify(deltas[counter]));
                     counter++;
                     if (counter < deltas.length) {
                         nextCall();
@@ -109,7 +109,7 @@
         }
 
         function postProcess() {
-            console.log("---->" + JSON.stringify(deltas));
+            //console.log("---->" + JSON.stringify(deltas));
             var today = deltas[0].result;
             for (var i = 1; i < deltas.length; i++) {
                 var nth = deltas[i].result;
@@ -120,7 +120,7 @@
                     if (today[n] == null || nth[n] == null || today[n] == 0 || nth[n] == 0) {
                         changes[n] = na;
                     } else {
-                        console.log("n=" + n + " today[n]=" + today[n] + " nth[n])=" + nth[n]);
+                        //console.log("n=" + n + " today[n]=" + today[n] + " nth[n])=" + nth[n]);
                         changes[n] = Math.round( ((today[n]) - (nth[n])) / (nth[n]) * 1000) /1000;
                     }
 
@@ -133,13 +133,13 @@
             var headerHtml = "<tr><th  class='text-sm-center' rowspan=2>Currency (Ticker)</th>";
             for (var i = 0; i < deltas.length; i++) {
                 var colspan = i == 0 ? 1 : 2;
-                headerHtml += ("<th  class='text-sm-center' colspan=" + colspan + ">" + deltas[i].title + "</th>");
+                headerHtml += ("<th  class='text-sm-center' colspan=" + colspan + "><small><strong>" + deltas[i].title + "</strong></small></th>");
             }
             headerHtml += "</tr><tr>";
             for (var i = 0; i < deltas.length; i++) {
 
-                headerHtml += ("<th><small>Price&nbsp;($)</small></th>");
-                if (deltas[i].changes != null) headerHtml += ("<th><small>Change&nbsp;(%)</small></th>");
+                headerHtml += ("<th class='text-center'><small>Price<br/>($)</small></th>");
+                if (deltas[i].changes != null) headerHtml += ("<th class='text-center'><small>Change<br/>(%)</small></th>");
             }
             headerHtml += "</tr>";
             $("#tbl thead").html(headerHtml);
@@ -174,7 +174,7 @@
                         price = Math.round(100 * deltas[i].result[key]) / 100;
                     }
 
-                    bodyHtml += "<td>" + price + "</td>";
+                    bodyHtml += "<td class='text-center'><small>" + price + "</small></td>";
 
                     if (price != na) mobileHtml += "$"
                     mobileHtml += price;
@@ -193,7 +193,7 @@
                             change = Math.round(deltas[i].changes[key] * 10000) / 100;
                             style = change > 0 ? "text-success" : "text-danger";
                         }
-                        bodyHtml += "<td class='" + style + "'>" + change + "</td>";
+                        bodyHtml += "<td class='text-center " + style + "'>" + change + "</td>";
                         mobileHtml += "<div class='col " + style + "'>";
                         mobileHtml += change;
                         if (change != na) mobileHtml += "%";
