@@ -48,7 +48,7 @@
 
         deltas.push({ title: "Today", ts: Math.round(today.getTime() / 1000) });
 
-        for (var k = 2; k < 50; k+=2) {
+        for (var k = 2; k < 25; k+=2) {
             today.setDate(today.getDate() - 7);
             deltas.push({ title: "" + k + " w. ago", ts: Math.round(today.getTime() / 1000) });
         }
