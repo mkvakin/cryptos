@@ -1,3 +1,8 @@
+setTimeout(function () {
+    document.location.reload(true);
+}, 1000 * 60 * 5);
+
+
 var na = "--";
 
 var tickerLookup = [
