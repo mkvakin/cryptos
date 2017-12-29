@@ -5,6 +5,18 @@ setTimeout(function () {
 
 var na = "--";
 
+
+
+function buildChartUrl(key) {
+    key = key.toUpperCase() + ".X";
+    if (key == "BTG.X") key += "2";
+    return chartUrl = `https://tickeron.com/app/social#!/tickers/${key}/overview`;
+}
+
+function buildClickableTicker(key, value) {
+    return "<a href='" + buildChartUrl(key) + "' target='_blank'>" + value + "</a>";
+}
+
 var tickerLookup = [
     { BTC: "Bitcoin" }, { DASH: "Dash" }, { ETH: "Ethereum" }, { BCH: "Bitcoin Cash" }, { BTG: "Bitcoin Gold" }, { XRP: "Ripple" }
 ];

@@ -166,12 +166,13 @@
             for (var j = 0; j < tickerLookup.length; j++) {
                 var key = Object.keys(tickerLookup[j])[0];
                 var theTicker = tickerLookup[j][key] + " (" + key + ")";
+                var theUrl = buildClickableTicker(key, theTicker);
                 var average = Math.round(averages[key] * 10000) / 100;
-                bodyHtml += "<tr><td>" + theTicker + "</td>";
+                bodyHtml += "<tr><td>" + theUrl + "</td>";
                 bodyHtml += "<td class='" + calcStyle(average) + " font-weight-bold'>" + average + "</td>";
 
                 mobileHtml += "<div class='row'><div class='col'><h5>";
-                mobileHtml += theTicker;
+                mobileHtml += theUrl;
                 mobileHtml += "</h5></div></div>";
                 mobileHtml += "<div class='row'><div class='col-5'>Average</div><div class='col'>--</div><div class='col font-weight-bold " + calcStyle(average) + "'>";
                 mobileHtml += average;

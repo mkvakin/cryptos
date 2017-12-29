@@ -150,11 +150,13 @@
             for (var j = 0; j < tickerLookup.length; j++) {
                 var key = Object.keys(tickerLookup[j])[0];
                 var theTicker = tickerLookup[j][key] + " (" + key + ")";
+
+                var theUrl = buildClickableTicker(key, theTicker);
                 //theTicker = "<a href='weekly.html?ticker=" + key + "'>" + theTicker + "</a>";
-                bodyHtml += "<tr><td>" + theTicker + "</td>";
+                bodyHtml += "<tr><td>" + theUrl + "</td>";
 
                 mobileHtml += "<div class='row'><div class='col'><h5>";
-                mobileHtml += theTicker;
+                mobileHtml += theUrl;
                 mobileHtml += "</h5></div></div>";
                 mobileHtml += "<div class='row'><div class='col'>";
 
