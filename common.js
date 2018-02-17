@@ -18,7 +18,7 @@ function buildClickableTicker(key, value) {
 }
 
 var tickerLookup = [
-    { BTC: "Bitcoin" }, { DASH: "Dash" }, { ETH: "Ethereum" }, { BCH: "Bitcoin Cash" }, { BTG: "Bitcoin Gold" }, { XRP: "Ripple" }
+    { BTC: "Bitcoin" }, { DASH: "Dash" }, { ETH: "Ethereum" }, { BCH: "Bitcoin Cash" }, { LTC: "Litecoin" }, { XRP: "Ripple" }
 ];
 
 function findTickerDescription(ticker) {
