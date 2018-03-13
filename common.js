@@ -10,7 +10,7 @@ var na = "--";
 function buildChartUrl(key) {
     key = key.toUpperCase() + ".X";
     if (key == "BTG.X") key += "2";
-    return chartUrl = `https://tickeron.com/app/social#!/tickers/${key}/overview`;
+    return chartUrl = `https://tickeron.com/app/social#!/tickers/${key}/overview/day`;
 }
 
 function buildClickableTicker(key, value) {
